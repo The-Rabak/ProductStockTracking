@@ -24,7 +24,35 @@ class TrackCommand extends Command
 
     public function handle()
     {
-        Product::all()->each->track();
+        $products = Product::all()
+            ->tap(fn($products) => $this->output->progressStart($products->count()))
+            ->each(function ($product) {
+                $product->track();
+                $this->output->progressAdvance();
+            });
+
+        $this->showResults();
+
+
         $this->info("Stocks updated");
+    }
+
+    private function showResults()
+    {
+        $this->output->progressFinish();
+        $data = Product::query()
+            ->leftJoin("stocks", "products.id", "=", "stocks.id")
+            ->get($this->keys());
+
+        $this->table(
+            array_map(fn($key) => ucwords(str_replace("_", " ", $key)),
+                $this->keys()),
+            $data
+        );
+    }
+
+    private function keys()
+    {
+        return ["name", "price", "url", "in_stock"];
     }
 }

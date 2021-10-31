@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Stock;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 /*

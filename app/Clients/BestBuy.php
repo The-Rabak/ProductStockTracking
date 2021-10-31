@@ -11,8 +11,8 @@ class BestBuy implements Client
     public function checkAvailability(Stock $stock): StockClientResponse
     {
         $results = Http::get($this->endpoint($stock->sku))->json();
-        return new StockClientResponse($results['onlineAvailability'],
-            dollars_to_cents($results['salePrice']));
+        return new StockClientResponse($results['onlineAvailability'] ?? false,
+            dollars_to_cents($results['salePrice'] ?? 0));
     }
 
     public function endpoint($sku)

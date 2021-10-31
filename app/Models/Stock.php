@@ -6,6 +6,8 @@ use App\Clients\Amazon;
 use App\Clients\ClientException;
 use App\Clients\ClientFactory;
 use App\Clients\StockClientResponse;
+use App\Events\BackInStock;
+use App\useCases\TrackStock;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
@@ -22,15 +24,25 @@ class Stock extends Model
     public function track()
     {
 
-        $StockClientResponse = $this->retailer
-            ->client()
-            ->checkAvailability($this);
+        //entire tracking logic moved to TrackStock useCase
+        //the commented history is here for brevity's sake
+        (new TrackStock($this))->handle();
 
-        $this->record_history();
-        $this->update([
-            "in_stock" => $StockClientResponse->in_stock,
-            "price" => $StockClientResponse->price
-        ]);
+//        $StockClientResponse = $this->retailer
+//            ->client()
+//            ->checkAvailability($this);
+
+//        if(!$this->in_stock && $StockClientResponse->in_stock)
+//        {
+//            event(new BackInStock($this));
+//        }
+
+        //$this->record_history();
+//        $this->update([
+//            "in_stock" => $StockClientResponse->in_stock,
+//            "price" => $StockClientResponse->price
+//        ]);
+
     }
 
     public function retailer()
@@ -51,5 +63,10 @@ class Stock extends Model
     public function history()
     {
         return $this->hasMany(History::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 }

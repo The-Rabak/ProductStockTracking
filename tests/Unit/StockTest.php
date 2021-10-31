@@ -30,24 +30,13 @@ class StockTest extends TestCase
      */
     public function it_updates_local_db_after_tracking()
     {
-        //no matter how much i try to stop the make call on clientFactory it still sends the actual http request
-        //and hits an error... doing it exactly like Jeffrey in https://laracasts.com/series/build-a-stock-tracker-app/episodes/6
+        $this->seed(ProductWithRetailer::class);
 
-
-//        $this->seed(ProductWithRetailer::class);
-
-        //$clientMock = \Mockery::mock(ClientFactory::class);
-        //$clientMock->shouldReceive("make")->andReturn(new FakeClient);
-        //ClientFactory::shouldReceive('make->checkAvailability')->andReturn(new StockClientResponse($in_stock = true, $price = 99900));
-        //$stock = tap(Stock::first())->track();
+        $this->fakeClientResponse($in_stock = true, $price = 99900);
+        $stock = Stock::first();
+        $fresh_stock = tap(Stock::first())->track();
+        $this->assertNotEquals($stock->price, $fresh_stock->price);
+        $this->assertNotEquals($stock->in_stock, $fresh_stock->in_stock);
     }
 }
 
-class FakeClient implements Client
-{
-    public function checkAvailability(Stock $stock): StockClientResponse
-    {
-        return new StockClientResponse($in_stock = true, $price = 99900);
-    }
-
-}

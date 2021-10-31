@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Product;
 use App\Models\Retailer;
 use App\Models\Stock;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class ProductWithRetailer extends Seeder
@@ -27,5 +28,7 @@ class ProductWithRetailer extends Seeder
         ]);
 
         $amazon->addStock($switch, $stock);
+
+        User::factory()->create();
     }
 }
